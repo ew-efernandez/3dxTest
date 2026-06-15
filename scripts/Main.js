@@ -575,17 +575,18 @@
                     return;
                 }
 
+                gInitialized = true;
+
                 waitForWidgetDom(function (hasDom) {
                     if (!hasDom) {
                         setStatus("No se ha encontrado la estructura HTML esperada del widget tras esperar al DOM.", "error");
                         return;
                     }
 
-                    if (gInitialized || !bindEvents()) {
+                    if (!bindEvents()) {
                         return;
                     }
 
-                    gInitialized = true;
                     startLoad();
                 });
             }
