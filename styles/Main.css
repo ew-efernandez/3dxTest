@@ -1,0 +1,28 @@
+/*
+ * @author DSIS
+ */
+
+.scrollable-container {
+    width: 100%;
+    overflow-y: auto;
+    height: 300px; 
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+thead {
+    background-color: #005386;
+    color: white;
+    font-weight: bold; 
+    position: sticky;
+    top: 0; 
+    z-index: 10; 
+}
+tr:hover {
+    background-color: rgb(57, 192, 245);
+}
+td, th {
+    padding: 8px;
+    border: 1px solid #ddd; 
+}
