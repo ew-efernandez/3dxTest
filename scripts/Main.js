@@ -188,8 +188,6 @@
                     return;
                 }
 
-                setStatus("Cargando módulos de 3DEXPERIENCE...");
-
                 require([
                     "DS/WAFData/WAFData",
                     "DS/i3DXCompassServices/i3DXCompassServices"
@@ -581,7 +579,6 @@
                 }
 
                 gInitialized = true;
-                setStatus("Inicializando widget...");
 
                 waitForWidgetDom(function (hasDom) {
                     if (!hasDom) {
@@ -595,14 +592,6 @@
 
                     startLoad();
                 });
-            }
-
-            function onDomReady(callback) {
-                if (document.readyState === "loading") {
-                    document.addEventListener("DOMContentLoaded", callback);
-                } else {
-                    callback();
-                }
             }
 
             function waitForWidget(callback) {
@@ -627,20 +616,23 @@
                 tick();
             }
 
+            function onDomReady(callback) {
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", callback);
+                } else {
+                    callback();
+                }
+            }
+
             function boot() {
                 onDomReady(function () {
-                    setStatus("Esperando runtime de 3DEXPERIENCE...");
-
                     waitForWidget(function (hasWidgetRuntime) {
                         if (!hasWidgetRuntime) {
-                            setStatus("No se encuentra el objeto widget. Revisa que la página esté cargada como widget de 3DEXPERIENCE y no como página web simple.", "error");
+                            setStatus("No se encuentra el objeto widget. Abre esta página como widget dentro de 3DEXPERIENCE.", "error");
                             return;
                         }
 
                         widget.addEvent("onLoad", onWidgetReady);
-
-                        // In hosted/exterior mode the onLoad event can already have fired
-                        // before the external JavaScript finishes loading.
                         onWidgetReady();
                     });
                 });
