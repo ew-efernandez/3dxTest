@@ -3,7 +3,9 @@
  */
 
 p {
-    border-bottom: 1px solid grey;
+    margin-top:20px;
+	font-size: large;
+	font-weight: bold;
 }
 
 table {

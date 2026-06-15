@@ -3,26 +3,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:widget="http://www.netvibes.com/ns/">
 
 <head>
-	<title>DSIS All In One Data Widget</title>
+	<title>DSIS Droppable Widget</title>
 
 	<meta name="author" content="DSIS" />
-	<meta name="description" content="DSIS All In One Data Widget" />
+	<meta name="description" content="DSIS Droppable Widget" />
 	<meta name="apiVersion" content="1.3" />
 	<meta name="debugMode" content="true" />
 	<meta name="strictMode" content="false" />
 
-	<script type="text/javascript" src="../DSISLibraries/jquery/jquery-3.2.1.min.js"></script>
 
-	<!-- Application Preferences -->
-	<widget:preferences>
-		<widget:preference type="text" name="ctx" label="3DSpace Context" defaultValue='' />
-		<widget:preference type="text" name="typeObj" label="Type of Object" defaultValue='Task' />
-	</widget:preferences>
-
-	<!-- Widget files -->
 	<link rel="stylesheet" type="text/css" href="styles/Main.css" />
 	<script type="text/javascript" src="scripts/Main.js"></script>
-
+	
 	<script type="text/javascript">
 		function widgetLoading() {
 			if (widget) {
@@ -34,11 +26,10 @@
 		}
 		widgetLoading();
 	</script>
-
 </head>
 
 <body>
-	<p>Loading...</p>
+	<p>Select any row and Drop here </p>
 </body>
 
 </html>
