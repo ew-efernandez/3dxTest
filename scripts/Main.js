@@ -7,6 +7,8 @@
                 serviceName: "3DSpace",
                 personEndpoint: "/resources/modeler/pno/person?current=true&select=collabspaces",
                 requestTimeout: 60000,
+                widgetWaitAttempts: 50,
+                widgetWaitDelay: 100,
                 domWaitAttempts: 50,
                 domWaitDelay: 100
             };
@@ -588,14 +590,38 @@
                 });
             }
 
-            function boot() {
-                if (typeof widget !== "undefined" && widget.addEvent) {
-                    widget.addEvent("onLoad", onWidgetReady);
-                    onWidgetReady();
-                    return;
+            function waitForWidget(callback) {
+                var attempts = 0;
+
+                function tick() {
+                    if (typeof widget !== "undefined" && widget.addEvent) {
+                        callback(true);
+                        return;
+                    }
+
+                    attempts += 1;
+
+                    if (attempts >= CONFIG.widgetWaitAttempts) {
+                        callback(false);
+                        return;
+                    }
+
+                    setTimeout(tick, CONFIG.widgetWaitDelay);
                 }
 
-                setStatus("No se encuentra el objeto widget. Abre esta página como widget dentro de 3DEXPERIENCE.", "error");
+                tick();
+            }
+
+            function boot() {
+                waitForWidget(function (hasWidgetRuntime) {
+                    if (!hasWidgetRuntime) {
+                        setStatus("No se encuentra el objeto widget. Abre esta página como widget dentro de 3DEXPERIENCE.", "error");
+                        return;
+                    }
+
+                    widget.addEvent("onLoad", onWidgetReady);
+                    onWidgetReady();
+                });
             }
 
             boot();
