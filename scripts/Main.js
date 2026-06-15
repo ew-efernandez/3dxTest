@@ -612,15 +612,25 @@
                 tick();
             }
 
-            function boot() {
-                waitForWidget(function (hasWidgetRuntime) {
-                    if (!hasWidgetRuntime) {
-                        setStatus("No se encuentra el objeto widget. Abre esta página como widget dentro de 3DEXPERIENCE.", "error");
-                        return;
-                    }
+            function onDomReady(callback) {
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", callback);
+                } else {
+                    callback();
+                }
+            }
 
-                    widget.addEvent("onLoad", onWidgetReady);
-                    onWidgetReady();
+            function boot() {
+                onDomReady(function () {
+                    waitForWidget(function (hasWidgetRuntime) {
+                        if (!hasWidgetRuntime) {
+                            setStatus("No se encuentra el objeto widget. Abre esta página como widget dentro de 3DEXPERIENCE.", "error");
+                            return;
+                        }
+
+                        widget.addEvent("onLoad", onWidgetReady);
+                        onWidgetReady();
+                    });
                 });
             }
 
