@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html>
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:widget="http://www.netvibes.com/ns/">
 <head>
     <meta charset="UTF-8" />
     <title>SecurityContext por 3DSpace</title>
@@ -9,6 +10,18 @@
     <meta name="debugMode" content="true" />
     <meta name="strictMode" content="false" />
     <link rel="stylesheet" type="text/css" href="./styles/Main.css?v=3" />
+    <script type="text/javascript" src="./scripts/Main.js?v=4"></script>
+    <script type="text/javascript">
+        function widgetLoading() {
+            if (widget) {
+                executeWidgetCode();
+            } else {
+                console.warn("Defered widget Loading");
+                setTimeout(widgetLoading, 100);
+            }
+        }
+        widgetLoading();
+    </script>
 </head>
 
 <body>
@@ -48,6 +61,5 @@
             <div class="empty">Esperando datos...</div>
         </div>
     </div>
-    <script type="text/javascript" src="./scripts/Main.js?v=4"></script>
 </body>
 </html>

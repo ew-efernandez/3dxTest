@@ -1,4 +1,5 @@
 /* global widget, require */
+function executeWidgetCode() {
         (function () {
             "use strict";
 
@@ -648,3 +649,4 @@
 
             boot();
         }());
+}
