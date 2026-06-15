@@ -195,6 +195,9 @@
                     gWAFData = WAFData;
                     gCompassServices = i3DXCompassServices;
                     onReady();
+                }, function (error) {
+                    debugLog("require failure", error);
+                    setStatus("No se han podido cargar los módulos DS/WAFData o DS/i3DXCompassServices: " + safeStringify(error), "error");
                 });
             }
 
