@@ -6,7 +6,9 @@
                 debug: true,
                 serviceName: "3DSpace",
                 personEndpoint: "/resources/modeler/pno/person?current=true&select=collabspaces",
-                requestTimeout: 60000
+                requestTimeout: 60000,
+                domWaitAttempts: 50,
+                domWaitDelay: 100
             };
 
             var gInitialized = false;
@@ -538,16 +540,52 @@
                 return true;
             }
 
+            function waitForWidgetDom(callback) {
+                var attempts = 0;
+
+                function tick() {
+                    var hasDom =
+                        document.getElementById("refresh") &&
+                        document.getElementById("search") &&
+                        document.getElementById("platformFilter") &&
+                        document.getElementById("spaceList");
+
+                    if (hasDom) {
+                        callback(true);
+                        return;
+                    }
+
+                    attempts += 1;
+
+                    if (attempts >= CONFIG.domWaitAttempts) {
+                        callback(false);
+                        return;
+                    }
+
+                    setTimeout(tick, CONFIG.domWaitDelay);
+                }
+
+                tick();
+            }
+
             function onWidgetReady() {
                 if (gInitialized) {
                     return;
                 }
 
-                gInitialized = true;
-                if (!bindEvents()) {
-                    return;
-                }
-                startLoad();
+                waitForWidgetDom(function (hasDom) {
+                    if (!hasDom) {
+                        setStatus("No se ha encontrado la estructura HTML esperada del widget tras esperar al DOM.", "error");
+                        return;
+                    }
+
+                    if (gInitialized || !bindEvents()) {
+                        return;
+                    }
+
+                    gInitialized = true;
+                    startLoad();
+                });
             }
 
             function boot() {
