@@ -6,7 +6,11 @@
                 debug: true,
                 serviceName: "3DSpace",
                 personEndpoint: "/resources/modeler/pno/person?current=true&select=collabspaces",
-                requestTimeout: 60000
+                requestTimeout: 60000,
+                widgetWaitAttempts: 50,
+                widgetWaitDelay: 100,
+                domWaitAttempts: 50,
+                domWaitDelay: 100
             };
 
             var gInitialized = false;
@@ -184,6 +188,8 @@
                     return;
                 }
 
+                setStatus("Cargando módulos de 3DEXPERIENCE...");
+
                 require([
                     "DS/WAFData/WAFData",
                     "DS/i3DXCompassServices/i3DXCompassServices"
@@ -191,6 +197,9 @@
                     gWAFData = WAFData;
                     gCompassServices = i3DXCompassServices;
                     onReady();
+                }, function (error) {
+                    debugLog("require failure", error);
+                    setStatus("No se han podido cargar los módulos DS/WAFData o DS/i3DXCompassServices: " + safeStringify(error), "error");
                 });
             }
 
@@ -515,15 +524,55 @@
             }
 
             function bindEvents() {
-                document.getElementById("refresh").addEventListener("click", startLoad);
-                document.getElementById("search").addEventListener("input", render);
-                document.getElementById("platformFilter").addEventListener("change", render);
-                document.getElementById("spaceList").addEventListener("click", function (event) {
+                var refreshButton = document.getElementById("refresh");
+                var searchInput = document.getElementById("search");
+                var platformFilter = document.getElementById("platformFilter");
+                var spaceList = document.getElementById("spaceList");
+
+                if (!refreshButton || !searchInput || !platformFilter || !spaceList) {
+                    setStatus("No se ha encontrado la estructura HTML esperada del widget.", "error");
+                    return false;
+                }
+
+                refreshButton.addEventListener("click", startLoad);
+                searchInput.addEventListener("input", render);
+                platformFilter.addEventListener("change", render);
+                spaceList.addEventListener("click", function (event) {
                     var target = event.target;
                     if (target && target.getAttribute("data-copy")) {
                         copyText(target.getAttribute("data-copy"));
                     }
                 });
+
+                return true;
+            }
+
+            function waitForWidgetDom(callback) {
+                var attempts = 0;
+
+                function tick() {
+                    var hasDom =
+                        document.getElementById("refresh") &&
+                        document.getElementById("search") &&
+                        document.getElementById("platformFilter") &&
+                        document.getElementById("spaceList");
+
+                    if (hasDom) {
+                        callback(true);
+                        return;
+                    }
+
+                    attempts += 1;
+
+                    if (attempts >= CONFIG.domWaitAttempts) {
+                        callback(false);
+                        return;
+                    }
+
+                    setTimeout(tick, CONFIG.domWaitDelay);
+                }
+
+                tick();
             }
 
             function onWidgetReady() {
@@ -532,21 +581,69 @@
                 }
 
                 gInitialized = true;
-                bindEvents();
-                startLoad();
+                setStatus("Inicializando widget...");
+
+                waitForWidgetDom(function (hasDom) {
+                    if (!hasDom) {
+                        setStatus("No se ha encontrado la estructura HTML esperada del widget tras esperar al DOM.", "error");
+                        return;
+                    }
+
+                    if (!bindEvents()) {
+                        return;
+                    }
+
+                    startLoad();
+                });
+            }
+
+            function onDomReady(callback) {
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", callback);
+                } else {
+                    callback();
+                }
+            }
+
+            function waitForWidget(callback) {
+                var attempts = 0;
+
+                function tick() {
+                    if (typeof widget !== "undefined" && widget.addEvent) {
+                        callback(true);
+                        return;
+                    }
+
+                    attempts += 1;
+
+                    if (attempts >= CONFIG.widgetWaitAttempts) {
+                        callback(false);
+                        return;
+                    }
+
+                    setTimeout(tick, CONFIG.widgetWaitDelay);
+                }
+
+                tick();
             }
 
             function boot() {
-                if (typeof widget !== "undefined" && widget.addEvent) {
-                    widget.addEvent("onLoad", onWidgetReady);
-                    return;
-                }
+                onDomReady(function () {
+                    setStatus("Esperando runtime de 3DEXPERIENCE...");
 
-                if (document.readyState === "loading") {
-                    document.addEventListener("DOMContentLoaded", onWidgetReady);
-                } else {
-                    onWidgetReady();
-                }
+                    waitForWidget(function (hasWidgetRuntime) {
+                        if (!hasWidgetRuntime) {
+                            setStatus("No se encuentra el objeto widget. Revisa que la página esté cargada como widget de 3DEXPERIENCE y no como página web simple.", "error");
+                            return;
+                        }
+
+                        widget.addEvent("onLoad", onWidgetReady);
+
+                        // In hosted/exterior mode the onLoad event can already have fired
+                        // before the external JavaScript finishes loading.
+                        onWidgetReady();
+                    });
+                });
             }
 
             boot();
